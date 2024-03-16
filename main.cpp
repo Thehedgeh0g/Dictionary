@@ -1,5 +1,5 @@
 #include <iostream>
-#include "Dictionary.h"
+#include "Classes/Dictionary.h"
 
 int main(int argc, char* argv[])
 {
