@@ -14,20 +14,31 @@
 class Dictionary
 {
 public:
-    explicit Dictionary(const char* path);
+    explicit Dictionary(const char *path);
 
     std::string GetTranslation(const std::string& query);
+
     void AddTranslation(const std::string& query, const std::string& translation);
+
     void SaveChanges();
+
     void Exit();
+
+    bool IsEdited() const;
+
 private:
     std::string dictPath;
-    std::unordered_map<std::string, std::string> dict;
-    std::unordered_map<std::string, std::string> buff;
+    std::unordered_map<std::string, std::vector<std::string>> dict;
+    bool isEdited;
 
-    void FlushBuff();
+    static std::vector<std::string> ExplodeTranslation(const std::string& str, char delimiter);
 
-    static std::vector<std::string> findKeysByValue(const std::unordered_map<std::string, std::string>& inputMap, const std::string& value);
+    static std::string Trim(const std::string& str);
+
+    static std::vector<std::string> FindKeysByValue(
+            const std::unordered_map<std::string, std::vector<std::string>>& inputMap,
+            const std::string& value
+    );
 };
 
 

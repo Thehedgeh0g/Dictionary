@@ -21,7 +21,7 @@ TEST(DictionaryTest, testCanNotOpenFile)
             {
                 Dictionary dict("test_dictionary.txt");
             },
-            std::runtime_error
+            std::invalid_argument
     );
 }
 

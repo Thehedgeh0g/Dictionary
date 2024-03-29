@@ -1,24 +1,27 @@
-//
-// Created by flipd on 12.03.2024.
-//
-
 #include <iostream>
+#include <sstream>
+#include <numeric>
 #include "Dictionary.h"
 
-Dictionary::Dictionary(const char* path) : dict()
+Dictionary::Dictionary(const char *path)
 {
     dictPath = path;
+    isEdited = false;
     std::ifstream dictStream(path);
     if (!dictStream.is_open())
     {
-        throw std::runtime_error("Couldn't open dict file to read");
+        throw std::invalid_argument("Couldn't open dict file to read");
     }
     std::string translation;
     std::string word;
 
     while (std::getline(dictStream, word) && std::getline(dictStream, translation))
     {
-        dict[word] = translation;
+        std::vector<std::string> translations = ExplodeTranslation(translation, '|');
+        for (const std::string& translationVariant: translations)
+        {
+            dict[word].push_back(translationVariant);
+        }
     }
     dictStream.close();
 }
@@ -26,67 +29,103 @@ Dictionary::Dictionary(const char* path) : dict()
 std::string Dictionary::GetTranslation(const std::string& query)
 {
     std::string translation;
-    std::string word;
     auto it = dict.find(query);
     if (it != dict.end())
     {
-        return it->second;
+        return Trim(std::accumulate(it->second.begin(), it->second.end(), std::string(),
+                                    [](const std::string& a, const std::string& b) {
+                                        return a + " " + b;
+                                    }));
     }
-    if (!findKeysByValue(dict, query).empty())
+    std::vector<std::string> keys = FindKeysByValue(dict, query);
+    if (!keys.empty())
     {
-        return findKeysByValue(dict, query)[0];
-    }
-    it = buff.find(query);
-    if (it != buff.end())
-    {
-        return it->second;
-    }
-    if (!findKeysByValue(buff, query).empty())
-    {
-        return findKeysByValue(buff, query)[0];
+        return Trim(keys[0]);
     }
     return "";
 }
 
-void Dictionary::AddTranslation(const std::string &query, const std::string &translation)
+void Dictionary::AddTranslation(const std::string& query, const std::string& translation)
 {
-    buff[query] = translation;
-}
-
-void Dictionary::FlushBuff()
-{
-    dict.insert(buff.begin(), buff.end());
-    buff.clear();
+    isEdited = true;
+    std::vector<std::string> translations = ExplodeTranslation(translation, '|');
+    for (const std::string& translationVariant: translations)
+    {
+        dict[query].push_back(translationVariant);
+    }
 }
 
 void Dictionary::SaveChanges()
 {
-    FlushBuff();
-    std::fstream dictStream(dictPath, std::fstream::out);
-    for (const auto& translationPair : dict)
+    std::ofstream dictStream(dictPath);
+    for (const auto& translationPair: dict)
     {
-        dictStream << translationPair.first << std::endl << translationPair.second << std::endl;
+        dictStream << translationPair.first << std::endl;
+        for (const auto& translation: dict[translationPair.first])
+        {
+            dictStream << translation << "|";
+        }
+        dictStream << std::endl;
     }
     dictStream.close();
 }
 
 void Dictionary::Exit()
 {
-    FlushBuff();
     dict.clear();
 }
 
-std::vector<std::string> Dictionary::findKeysByValue(
-    const std::unordered_map<std::string,
-    std::string> &inputMap,
-    const std::string &value
+std::vector<std::string> Dictionary::FindKeysByValue(
+        const std::unordered_map<std::string, std::vector<std::string>>& inputMap,
+        const std::string& value
 )
 {
     std::vector<std::string> result;
-    for (auto const& pair : inputMap) {
-        if (pair.second == value) {
-            result.push_back(pair.first);
+    for (const auto& pair: inputMap)
+    {
+        for (const auto& str: pair.second)
+        {
+            if (str == value)
+            {
+                result.push_back(pair.first);
+                break;
+            }
         }
     }
     return result;
+}
+
+bool Dictionary::IsEdited() const
+{
+    return isEdited;
+}
+
+std::vector<std::string> Dictionary::ExplodeTranslation(const std::string& str, char delimiter)
+{
+    std::vector<std::string> result;
+    std::stringstream ss(str);
+    std::string token;
+    while (std::getline(ss, token, delimiter))
+    {
+        result.push_back(token);
+    }
+    return result;
+}
+
+std::string Dictionary::Trim(const std::string& str)
+{
+    size_t start = 0;
+    size_t end = str.length();
+
+    while (start < end && std::isspace(str[start]))
+    {
+        ++start;
+    }
+
+    while (end > start && std::isspace(str[end - 1]))
+    {
+        --end;
+    }
+
+    return str.substr(start, end - start);
 }
