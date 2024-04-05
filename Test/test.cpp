@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "./../Classes/Dictionary.h"
 
-// Тестирование конструктора Dictionary
+
 TEST(DictionaryTest, ConstructorTest)
 {
     std::ofstream file("./../Test/test_dictionary.txt");
@@ -25,67 +25,83 @@ TEST(DictionaryTest, testCanNotOpenFile)
     );
 }
 
-// Тестирование метода GetTranslation
+
 TEST(DictionaryTest, GetTranslationTest)
 {
     std::ofstream file("./../Test/test_dictionary.txt");
     file.close();
-    // Создаем объект словаря и добавляем в него пару ключ-значение
+    
     Dictionary dict("./../Test/test_dictionary.txt");
-    dict.AddTranslation("apple", "яблоко");
+    dict.AddTranslation("apple", "Appel");
 
-    // Проверяем, что метод GetTranslation возвращает ожидаемое значение
-    EXPECT_EQ(dict.GetTranslation("apple"), "яблоко");
-    // Проверяем, что метод GetTranslation возвращает пустую строку для отсутствующего слова
+    
+    EXPECT_EQ(dict.GetTranslation("apple"), "Appel");
+    
     EXPECT_EQ(dict.GetTranslation("banana"), "");
     std::remove("./../Test/test_dictionary.txt");
 }
 
-// Тестирование метода AddTranslation
+
+TEST(DictionaryTest, GetMultiTranslationTest)
+{
+    std::ofstream file("./../Test/test_dictionary.txt");
+    file.close();
+
+    Dictionary dict("./../Test/test_dictionary.txt");
+    dict.AddTranslation("apple", "Appel|Aple");
+
+
+    EXPECT_EQ(dict.GetTranslation("apple"), "Appel, Aple");
+
+    EXPECT_EQ(dict.GetTranslation("banana"), "");
+    std::remove("./../Test/test_dictionary.txt");
+}
+
+
 TEST(DictionaryTest, AddTranslationTest)
 {
     std::ofstream file("./../Test/test_dictionary.txt");
     file.close();
-    // Создаем объект словаря и добавляем в него пару ключ-значение
+    
     Dictionary dict("./../Test/test_dictionary.txt");
-    dict.AddTranslation("apple", "яблоко");
+    dict.AddTranslation("apple", "Appel");
 
-    // Проверяем, что метод GetTranslation возвращает ожидаемое значение после добавления
-    EXPECT_EQ(dict.GetTranslation("apple"), "яблоко");
+    
+    EXPECT_EQ(dict.GetTranslation("apple"), "Appel");
     std::remove("./../Test/test_dictionary.txt");
 }
 
-// Тестирование метода SaveChanges
+
 TEST(DictionaryTest, SaveChangesTest)
 {
     std::ofstream file("./../Test/test_dictionary.txt");
     file.close();
-    // Создаем объект словаря и добавляем в него пару ключ-значение
+    
     Dictionary dict("./../Test/test_dictionary.txt");
-    dict.AddTranslation("apple", "яблоко");
+    dict.AddTranslation("apple", "Appel");
 
-    // Сохраняем изменения
+    
     dict.SaveChanges();
 
-    // Создаем новый объект словаря и проверяем, что изменения сохранились
+    
     Dictionary newDict("./../Test/test_dictionary.txt");
-    EXPECT_EQ(newDict.GetTranslation("apple"), "яблоко");
+    EXPECT_EQ(newDict.GetTranslation("apple"), "Appel");
     std::remove("./../Test/test_dictionary.txt");
 }
 
-// Тестирование метода Exit
+
 TEST(DictionaryTest, ExitTest)
 {
     std::ofstream file("./../Test/test_dictionary.txt");
     file.close();
-    // Создаем объект словаря и добавляем в него пару ключ-значение
+    
     Dictionary dict("./../Test/test_dictionary.txt");
-    dict.AddTranslation("apple", "яблоко");
+    dict.AddTranslation("apple", "Appel");
 
-    // Вызываем метод Exit
+    
     dict.Exit();
 
-    // Проверяем, что словарь пуст
+    
     EXPECT_EQ(dict.GetTranslation("apple"), "");
     std::remove("./../Test/test_dictionary.txt");
 }

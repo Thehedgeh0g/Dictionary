@@ -34,13 +34,16 @@ std::string Dictionary::GetTranslation(const std::string& query)
     {
         return Trim(std::accumulate(it->second.begin(), it->second.end(), std::string(),
                                     [](const std::string& a, const std::string& b) {
-                                        return a + " " + b;
-                                    }));
+                                        return a + ", " + b;
+                                    })).substr(2);
     }
     std::vector<std::string> keys = FindKeysByValue(dict, query);
     if (!keys.empty())
     {
-        return Trim(keys[0]);
+        return Trim(std::accumulate(keys.begin(), keys.end(), std::string(),
+                                    [](const std::string& a, const std::string& b) {
+                                        return a + ", " + b;
+                                    })).substr(2);
     }
     return "";
 }

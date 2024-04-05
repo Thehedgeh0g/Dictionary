@@ -28,13 +28,16 @@ int main(int argc, char *argv[])
             continue;
         }
 
-        std::cout << "Unknown word " << query << ". Enter a translation in form of 'translation1|translation2|translation3...' or an empty string to reject." << std::endl;
+        std::cout << "Unknown word " << query
+                  << ". Enter a translation in form of 'translation1|translation2|translation3...' or an empty string to reject."
+                  << std::endl;
         std::getline(std::cin, translation);
         if (!translation.empty())
         {
             dictionary.AddTranslation(query, translation);
             replaceAllOccurrences(translation, '|', ' ');
-            std::cout << "The word '" << query << "' is stored in the dictionary as '" << translation << "'." << std::endl;
+            std::cout << "The word '" << query << "' is stored in the dictionary as '" << translation << "'."
+                      << std::endl;
         }
 
         std::getline(std::cin, query);
