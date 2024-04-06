@@ -41,11 +41,15 @@ int main(int argc, char *argv[])
         }
 
         std::getline(std::cin, query);
+        while (std::empty(query))
+        {
+            std::getline(std::cin, query);
+        }
     }
-    std::cin >> query;
     if (dictionary.IsEdited())
     {
         std::cout << "Changes have been made to the dictionary. Enter Y or y to save before exiting." << std::endl;
+        std::cin >> query;
         if (query == "Y" || query == "y")
         {
             dictionary.SaveChanges();
